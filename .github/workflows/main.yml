@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: gableroux/unity3d:2019.2.2f1
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v1
+
+      - name: Decrypt the license file
+        run: openssl aes-256-cbc -d -in .github/Unity_v2019.x.ulf.enc -k ${{ secrets.UNITY_LICENSE_KEY }} >> .github/Unity_v2019.x.ulf
+
+      # Activate unity
+      - name: Activate Unity
+        run: /opt/Unity/Editor/Unity -quit -batchmode -nographics -silent-crashes -logFile -manualLicenseFile .github/Unity_v2019.x.ulf || exit 0
+
+      # Build Windows
+      - name: Build Windows Player
+        run: /opt/Unity/Editor/Unity -quit -batchmode -nographics -silent-crashes -accept-apiupdate -logFile -projectPath . -buildWindows64Player ./bin-win64/RESS3D.exe
+
+      - name: Archive Windows Build
+        uses: actions/upload-artifact@v1
+        with:
+          name: RESS3D_WIN
+          path: ./bin-win64
+          
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "./bin-win64"
+          token: ${{ secrets.GITHUB_TOKEN }}
