@@ -45,6 +45,6 @@ jobs:
         uses: Roang-zero1/github-upload-release-artifacts-action@master
         with:
           args:
-            - dist/win64/
+            - ./dist/win64/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
