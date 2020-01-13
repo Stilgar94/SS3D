@@ -20,13 +20,13 @@ jobs:
 
       # Build Windows
       - name: Build Windows Player
-        run: /opt/Unity/Editor/Unity -quit -batchmode -nographics -silent-crashes -accept-apiupdate -logFile -projectPath . -buildWindows64Player ./bin/win64/RESS3D.exe
+        run: /opt/Unity/Editor/Unity -quit -batchmode -nographics -silent-crashes -accept-apiupdate -logFile -projectPath . -buildWindows64Player ./dist/win64/RESS3D.exe
 
       - name: Archive Windows Build
         uses: actions/upload-artifact@v1
         with:
           name: RESS3D_WIN
-          path: ./bin/win64
+          path: ./dist/win64
 
   release:
     needs: [build]
@@ -45,6 +45,6 @@ jobs:
         uses: Roang-zero1/github-upload-release-artifacts-action@master
         with:
           args:
-            - bin/win64
+            - dist/win64/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
