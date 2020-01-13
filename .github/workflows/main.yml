@@ -27,17 +27,9 @@ jobs:
         with:
           name: RESS3D_WIN
           path: ./bin-win64
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: ncipollo/release-action@v1
-        with:
-          artifacts: "./bin-win64"
-          token: ${{ secrets.GITHUB_TOKEN }}
+          
   publish:
-    needs: release
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Upload artifacts
