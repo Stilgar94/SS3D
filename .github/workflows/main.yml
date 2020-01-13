@@ -1,4 +1,4 @@
-name: CI
+name: Public Release
 on:
   push:
     tags:
@@ -49,13 +49,13 @@ jobs:
       - name: Archive build
         uses: montudor/action-zip@v0.1.0
         with:
-          args: zip -qq -r ./RESS3D_v$SOURCE_TAG.zip ./RESS3D_WIN
+          args: zip -qq -r OUTPUT_FILE ./RESS3D_WIN
         env:
-          SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
+          ARCHIVE_FILE: ./RESS3D_v${{ steps.tag_name.outputs.SOURCE_TAG }}.zip
       - name: Attach build to release
         uses: Roang-zero1/github-upload-release-artifacts-action@master
         with:
-          args: ./RESS3D_v$SOURCE_TAG.zip
+          args: ARCHIVE_FILE
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
+          ARCHIVE_FILE: ./RESS3D_v${{ steps.tag_name.outputs.SOURCE_TAG }}.zip
