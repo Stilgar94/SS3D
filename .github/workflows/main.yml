@@ -20,7 +20,7 @@ jobs:
       - name: Build Windows Player
         run: /opt/Unity/Editor/Unity -quit -batchmode -nographics -silent-crashes -accept-apiupdate -logFile -projectPath . -buildWindows64Player ./dist/win64/RESS3D.exe
 
-      - name: Archive Windows Build
+      - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: RESS3D_WIN
@@ -42,9 +42,20 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: RESS3D_WIN
+      - name: Get version tag
+        id: tag_name
+        run: |
+          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
+      - name: Archive build
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./RESS3D_v$SOURCE_TAG.zip ./RESS3D_WIN
+        env:
+          SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
       - name: Attach build to release
         uses: Roang-zero1/github-upload-release-artifacts-action@master
         with:
-          args: ./RESS3D_WIN
+          args: ./RESS3D_v$SOURCE_TAG.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_TAG: ${{ steps.tag_name.outputs.SOURCE_TAG }}
