@@ -31,6 +31,7 @@ jobs:
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
+          buildName: RESS3D-${{ steps.tag_name.outputs.SOURCE_TAG }}
           targetPlatform: ${{ matrix.targetPlatform }}
       - name: Get version tag
         id: tag_name
@@ -39,7 +40,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: RESS3D-${{ steps.tag_name.outputs.SOURCE_TAG }}
-          path: build/${{ matrix.targetPlatform }}
+          path: build/RESS3D-${{ steps.tag_name.outputs.SOURCE_TAG }}
       - uses: actions/create-release@v1
         id: create_release
         with:
@@ -49,10 +50,6 @@ jobs:
           tag_name: ${{ steps.tag_name.outputs.SOURCE_TAG }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      - uses: actions/download-artifact@v2
-        with:
-          name: RESS3D-${{ steps.tag_name.outputs.SOURCE_TAG }}
-          path: builds
       - name: Display structure of downloaded files
         run: ls -R
         working-directory: builds
@@ -61,6 +58,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: builds/RESS3D-${{ steps.tag_name.outputs.SOURCE_TAG }}.zip
-          asset_name: RESS3D-${{ steps.tag_name.outputs.SOURCE_TAG }}.zip
+          asset_path: builds
+          asset_name: RESS3D-${{ steps.tag_name.outputs.SOURCE_TAG }}
           asset_content_type: application/zip
