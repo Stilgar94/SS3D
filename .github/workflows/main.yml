@@ -1,0 +1,55 @@
+#https://game.ci/docs/github/builder
+#https://trstringer.com/github-actions-create-release-upload-artifacts/
+name: Automated Build
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  build:
+    name: Build for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          #- StandaloneOSX
+          #- StandaloneWindows
+          - StandaloneWindows64
+          #- StandaloneLinux64
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          lfs: true
+      - uses: actions/cache@v2
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
+      - uses: game-ci/unity-builder@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: RESS3D-${{ github.ref }}
+          path: build/${{ matrix.targetPlatform }}
+      - uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: Release ${{ github.ref }}
+          tag_name: ${{ github.ref }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/StandaloneWindows64/RESS3D-${{ github.ref }}.zip
+          asset_name: RESS3D-${{ github.ref }}.zip
+          asset_content_type: application/zip
